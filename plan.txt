@@ -1,0 +1,54 @@
+Make battlezone remake
+
+0. Basics of any game:
+Main loop
+Listen to inputs
+Update stats/data
+Render
+
+1. Objects:
+Player
+EnemyTank
+EnemyUFO
+Rocks/Boxes
+
+
+2. Functionality:
+Shooting (player and enemies)
+Moving (player and enemies)
+Adding score
+Reducing lives
+Exploding enemies
+Entering name
+
+
+3. What to display on screen:
+Objects:
+Enemy tanks
+UFOs
+Distant Mountains
+Moon
+Rocks (obsticals behind which enemy can hide)
+Boxes
+
+Game Info:
+Current score
+Highest score
+Remaining lives
+mini map
+reticle
+
+
+4. Project tools
+download and install SDL library (check best compitable version)
+shell script to build
+SQLite to store best users' scores and names 
+Development header to work with SQLite
+
+
+5. Project structure
+scr -> main.c, game (current score, leaderboard/hieghest), input (keyboards), render(update frames/screen), enteties(objects)
+data -> highestscore.db
+
+6. Game stages
+Main screen (start the game) -> Game itself (gameplay) -> Game Over screen (enter your name + see list of best scores) -> Main screen

@@ -1,0 +1,23 @@
+# executables / binaries
+*.exe
+a.out
+battlezone
+battlezone.exe
+
+# environmental files
+*.env
+!.env.example
+
+# ide files
+.vscode/
+.idea/
+*.code-workspace
+
+# the runtime database
+*.db
+*.sqlite
+*.sqlite3
+highscores.db
+
+# build artifacts
+*.o
