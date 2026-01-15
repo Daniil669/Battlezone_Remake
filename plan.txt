@@ -1,5 +1,14 @@
 Make battlezone remake
 
+TASKS:
+1) Install packages (SDL2, SQLite3) - DONE 
+2) Create build script for both dev and prod environments - DOING 
+3) Set up DB, scores.h and scores.c, test from main.c - DOING
+4) Play with SDL and how to use it - 
+
+
+PROJECT OVERVIEW:
+
 0. Basics of any game:
 Main loop
 Listen to inputs
@@ -42,12 +51,12 @@ reticle
 4. Project tools
 download and install SDL library (check best compitable version)
 shell script to build
-SQLite to store best users' scores and names 
+SQLite to store best users' scores and names
 Development header to work with SQLite
 
 
 5. Project structure
-scr -> main.c, game (current score, leaderboard/hieghest), input (keyboards), render(update frames/screen), enteties(objects)
+scr -> main.c, game (current score, leaderboard/hieghest), input (keyboards), render(update frames/screen), enteties(objects), db(works with data)
 data -> highestscore.db
 
 6. Game stages
