@@ -1,18 +1,16 @@
 #include <stdio.h>
-#include <string.h>
-#include <sqlite3.h>
+#include <time.h>
+#include "scores.h"
 
 int main() {
-    sqlite3 *DB;
-
-    int rc = sqlite3_open("./data/highscores.db", &DB);
-    if (rc != SQLITE_OK) {
-        printf("Error open DB\n");
-        printf("%s\n", sqlite3_errmsg(DB));
-    } else {
-        printf("Connected!\n");
+    char *name = "Johnny";
+    int score = 69000;
+    scores_t **scores = handle_score(name, score);
+    printf("TOP 10:\n");
+    printf("PLACE | NAME | SCORE | TIME\n");
+    for (int i = 0; i < (*scores)->count; i++) {
+        score_t score = (*scores)->data[i];
+        printf("%i | %s | %i | %s\n", i+1, score.name, score.score, ctime((time_t)score.timestamp));
     }
-    sqlite3_close(DB);
-    printf("Connection closed.\n");
     return 0;
 }
