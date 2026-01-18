@@ -5,6 +5,12 @@ TASKS:
 2) Create build script for both dev and prod environments - DOING 
 3) Set up DB, scores.h and scores.c, test from main.c - DOING
 4) Play with SDL and how to use it - 
+5) Add enteties and their functionality - 
+6) Handle inputs - 
+7) Draw static objects (bg) - 
+8) Draw active objects (enemies, player, covers) - 
+9) Update stats - 
+10) Put everything together - 
 
 
 PROJECT OVERVIEW:

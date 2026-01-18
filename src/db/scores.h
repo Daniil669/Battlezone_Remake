@@ -2,15 +2,16 @@
 
 typedef struct Score {
     int id;
-    char *name;
+    char **name;
     int score;
     int timestamp;
 } score_t;
 
 typedef struct Scores {
-    score_t *data;
+    score_t **data;
     int count;
 } scores_t;
 
 
-score_t *handle_score(char *name, int score);
+int handle_scores(char *name, int score, scores_t **scores);
+void free_scores(scores_t *scores_list);
