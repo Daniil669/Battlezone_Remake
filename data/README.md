@@ -1,1 +1,1 @@
-## Do not delete this folder
+## Do not delete this folder. It will contain highscores db (for top 10);

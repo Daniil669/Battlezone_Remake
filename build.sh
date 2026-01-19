@@ -2,7 +2,7 @@
 
 set -euo pipefail # exit on fail
 
-gcc -Wall -Wextra -g -std=c11 ./src/main.c -i ./src/db/ -o battlezone $(pkg-config --cflags --libs sqlite3) # -g remove for prod
+gcc -Wall -Wextra -g -std=c11 ./src/main.c ./src/db/scores.c -o battlezone $(pkg-config --cflags --libs sqlite3) # -g remove for prod
 
 # make dev and prod version of this build script (configs settings hardcode)
 # devide command into variables

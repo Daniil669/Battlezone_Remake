@@ -1,8 +1,12 @@
 #pragma once
 
+// typedef enum DB_exec_codes {
+//     DB_OK = 0,
+// };
+
 typedef struct Score {
     int id;
-    char **name;
+    char *name;
     int score;
     int timestamp;
 } score_t;
