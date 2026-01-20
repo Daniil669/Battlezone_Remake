@@ -1,8 +1,13 @@
 #pragma once
 
-// typedef enum DB_exec_codes {
-//     DB_OK = 0,
-// };
+typedef enum {
+    DB_OK,
+    DB_NAME_EXISTS,
+    DB_NAME_CHECK_FAIL,
+    DB_OPEN_FAIL,
+    DB_INSERT_FAIL,
+    DB_SELECT_FAIL
+} DbExecCode;
 
 typedef struct Score {
     int id;
@@ -17,5 +22,5 @@ typedef struct Scores {
 } scores_t;
 
 
-int handle_scores(char *name, int score, scores_t **scores);
+DbExecCode handle_scores(char *name, int score, scores_t **scores);
 void free_scores(scores_t *scores_list);

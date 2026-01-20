@@ -6,6 +6,41 @@
 #include "scores.h"
 
 
+static DbExecCode open_db(sqlite3 **db) {
+    int rc;
+    char *errMsg = NULL;
+    char *sql = "CREATE TABLE IF NOT EXISTS highscores(" \
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"\
+        "name TEXT NOT NULL,"\
+        "score INT NOT NULL,"\
+        "timestamp INT NOT NULL);";
+
+
+    rc = sqlite3_open("./data/highscores.db", db);
+    if (rc != SQLITE_OK) {
+        printf("Error open DB\n");
+        printf("%s\n", sqlite3_errmsg(*db));
+        return DB_OPEN_FAIL;
+    }
+
+    rc = sqlite3_exec(*db, sql, NULL, NULL, &errMsg);
+    if (rc != SQLITE_OK) {
+        printf("SQL error: %s\n", errMsg);
+        sqlite3_free(errMsg);
+        return DB_OPEN_FAIL;
+    }
+
+    return DB_OK;
+}
+
+static int set_rows_count(void *data, int colmncount, char **fields_row, char **colmnnames) {
+    (void)colmncount;
+    (void)colmnnames;
+    *((int *)data) = atoi(fields_row[0]);
+    return 0;
+}
+
+
 static int callback(void *data, int colmncount, char **fields_row, char **colmnnames) {
     (void)colmncount;
     (void)colmnnames;
@@ -32,91 +67,45 @@ static int callback(void *data, int colmncount, char **fields_row, char **colmnn
     return 0;
 }
 
-static int open_db(sqlite3 **db) {
-    int rc;
-    char *errMsg = NULL;
-    char *sql = "CREATE TABLE IF NOT EXISTS highscores(" \
-        "id INTEGER PRIMARY KEY AUTOINCREMENT,"\
-        "name TEXT NOT NULL,"\
-        "score INT NOT NULL,"\
-        "timestamp INT NOT NULL);";
 
-
-    rc = sqlite3_open("./data/highscores.db", db);
-    if (rc != SQLITE_OK) {
-        printf("Error open DB\n");
-        printf("%s\n", sqlite3_errmsg(*db));
-        return 1;
-    } else {
-        printf("Connected!\n");
-    }
-
-    rc = sqlite3_exec(*db, sql, NULL, NULL, &errMsg);
-    if (rc != SQLITE_OK) {
-        printf("SQL error: %s\n", errMsg);
-        sqlite3_free(errMsg);
-        return 1;
-    } else {
-        printf("Table 'highscores' created successfully.\n");
-    }
-
-    return 0;
-}
-
-static int set_rows_count(void *data, int colmncount, char **fields_row, char **colmnnames) {
-    (void)colmncount;
-    (void)colmnnames;
-    *((int *)data) = atoi(fields_row[0]);
-    return 0;
-}
-
-
-static int get_data_db(sqlite3 **db, scores_t **scores) {
+static DbExecCode get_data_db(sqlite3 **db, scores_t **scores) {
     int rc;
     char *errMsg = NULL;
     char *sql;
 
-    // check if 11 rows
     int rows_count = 0;
     sql = "SELECT COUNT(*) FROM highscores";
     rc = sqlite3_exec(*db, sql, set_rows_count, (void *)&rows_count, &errMsg);
     if (rc != SQLITE_OK) {
         printf("SQL error: %s\n", errMsg);
         sqlite3_free(errMsg);
-        return 1;
-    } else {
-        printf("Selected successfull.\n");
+        return DB_SELECT_FAIL;
     }
 
     if (rows_count == 11) {
-        // get id of the lowest and oldest; delete the lowest and oldest
         sql = "DELETE FROM highscores WHERE id = (SELECT id FROM highscores ORDER BY score ASC, timestamp ASC LIMIT 1)";
             rc = sqlite3_exec(*db, sql, NULL, NULL, &errMsg);
         if (rc != SQLITE_OK && rc != SQLITE_DONE) {
             printf("SQL error: %s\n", errMsg);
             sqlite3_free(errMsg);
-            return 1;
-        } else {
-            printf("Deleted successfull.\n");
+            return DB_SELECT_FAIL;
         }
     }
 
 
-    // select the rest
-    sql = "SELECT * FROM highscores ORDER BY score DESC";
+    sql = "SELECT * FROM highscores ORDER BY score DESC, timestamp DESC";
     rc = sqlite3_exec(*db, sql, callback, (void *)*scores, &errMsg);
     if (rc != SQLITE_OK) {
         printf("SQL error: %s\n", errMsg);
-        sqlite3_free(errMsg);
-        return 1;
-    } else {
-        printf("Selected successfull.\n");
+        sqlite3_free(errMsg); 
+        return DB_SELECT_FAIL;
     }
-    return 0;
+
+    return DB_OK;
 }
 
 
-static int add_data_db(sqlite3 **db, char *name, int score) {
+static DbExecCode add_data_db(sqlite3 **db, char *name, int score) {
     int rc;
     time_t curtime;
     char *sql = "INSERT INTO highscores (name, score, timestamp) VALUES (?, ?, ?);";
@@ -125,7 +114,7 @@ static int add_data_db(sqlite3 **db, char *name, int score) {
     rc = sqlite3_prepare_v2(*db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
         printf("SQL error: %s\n", sqlite3_errmsg(*db));
-        return 1;
+        return DB_INSERT_FAIL;
     }
 
 
@@ -138,16 +127,16 @@ static int add_data_db(sqlite3 **db, char *name, int score) {
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE) {
         printf("SQL error: %s\n", sqlite3_errmsg(*db));
-        return 1;
-    } else {
-        sqlite3_finalize(stmt);
-        printf("Inserted successfully.\n");
+        return DB_INSERT_FAIL;
     }
-    return 0;
+
+    sqlite3_finalize(stmt);
+
+    return DB_OK;
 }
 
 
-static int check_name(sqlite3 **db, char *name) {
+static DbExecCode check_name(sqlite3 **db, char *name) {
     int rc;
     char *sql = "SELECT id FROM highscores WHERE name = ?";
     int id = -1;
@@ -156,9 +145,7 @@ static int check_name(sqlite3 **db, char *name) {
     rc = sqlite3_prepare_v2(*db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
         printf("SQL error: %s\n", sqlite3_errmsg(*db));
-        return 1;
-    } else {
-        printf("Prepared statement object has been returned.\n");
+        return DB_NAME_CHECK_FAIL;
     }
 
     sqlite3_bind_text(stmt, 1, name, -1, SQLITE_TRANSIENT);
@@ -168,34 +155,35 @@ static int check_name(sqlite3 **db, char *name) {
         id = sqlite3_column_int(stmt, 0);
     } else if (rc != SQLITE_DONE) {
         printf("SQL error: %s\n", sqlite3_errmsg(*db));
-        return 1;
+        return DB_NAME_CHECK_FAIL;
     }  
-    printf("The name checked.\n");
+
     sqlite3_finalize(stmt);
 
     if (id != -1) {
-        return 2;
+        return DB_NAME_EXISTS;
     }
 
-    return 0;
+    return DB_OK;
 }
 
 
-int handle_scores(char *name, int score, scores_t **scores) {
+DbExecCode handle_scores(char *name, int score, scores_t **scores) {
     sqlite3 *db;
 
-    if (open_db(&db)) {
-        return 1;
+    if (open_db(&db) != DB_OK) {
+        return DB_OPEN_FAIL;
     }
 
-    // check if name already present in db
-    if (check_name(&db, name) == 2) {
-        return 2;
+    DbExecCode name_check = check_name(&db, name);
+    if ( name_check == DB_NAME_EXISTS) {
+        return DB_NAME_EXISTS;
+    } else if (name_check != DB_OK) {
+        return DB_NAME_CHECK_FAIL;
     }
 
-    // insert users data
-    if (add_data_db(&db, name, score)) {
-        return 1;
+    if (add_data_db(&db, name, score) != DB_OK) {
+        return  DB_INSERT_FAIL;
     }
 
     score_t **data = calloc(11, sizeof(score_t *));
@@ -204,19 +192,17 @@ int handle_scores(char *name, int score, scores_t **scores) {
     scores_list->count = 0;
     scores_list->data = data;
 
-    // select all objects
-    if (get_data_db(&db, &scores_list)){
+    if (get_data_db(&db, &scores_list) != DB_OK){
         free(data);
         free(scores_list);
-        return 1;
+        return DB_SELECT_FAIL;
     }
 
     *scores = scores_list;
 
     sqlite3_close(db);
-    printf("Connection closed.\n");
 
-    return 0;
+    return DB_OK;
 }
 
 void free_scores(scores_t *scores_list) {
