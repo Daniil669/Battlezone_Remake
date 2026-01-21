@@ -3,9 +3,9 @@ Make battlezone remake
 TASKS:
 1) Install packages (SDL2, SQLite3) - DONE 
 2) Create build script for both dev and prod environments - DOING 
-3) Set up DB, scores.h and scores.c, test from main.c - DOING
+3) Set up DB, scores.h and scores.c, test from main.c - DONE
 4) Play with SDL and how to use it - 
-5) Add enteties and their functionality - 
+5) Add enteties and their functionality - DOING
 6) Handle inputs - 
 7) Draw static objects (bg) - 
 8) Draw active objects (enemies, player, covers) - 
@@ -22,17 +22,24 @@ Update stats/data
 Render
 
 1. Objects:
-Player
-EnemyTank
-EnemyUFO
-Rocks/Boxes
+With behavior:
+    Player
+    Bullet
+    Missile
+    EnemyTank
+    EnemyUFO
+
+Static:
+    Rocks/Boxes
 
 
 2. Functionality:
 Shooting (player and enemies)
 Moving (player and enemies)
+
 Adding score
 Reducing lives
+
 Exploding enemies
 Entering name
 
@@ -41,8 +48,10 @@ Entering name
 Objects:
 Enemy tanks
 UFOs
+
 Distant Mountains
-Moon
+Stars
+
 Rocks (obsticals behind which enemy can hide)
 Boxes
 

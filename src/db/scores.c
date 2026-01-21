@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
@@ -8,7 +7,6 @@
 
 static DbExecCode open_db(sqlite3 **db) {
     int rc;
-    char *errMsg = NULL;
     char *sql = "CREATE TABLE IF NOT EXISTS highscores(" \
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"\
         "name TEXT NOT NULL,"\
@@ -18,15 +16,11 @@ static DbExecCode open_db(sqlite3 **db) {
 
     rc = sqlite3_open("./data/highscores.db", db);
     if (rc != SQLITE_OK) {
-        printf("Error open DB\n");
-        printf("%s\n", sqlite3_errmsg(*db));
         return DB_OPEN_FAIL;
     }
 
-    rc = sqlite3_exec(*db, sql, NULL, NULL, &errMsg);
+    rc = sqlite3_exec(*db, sql, NULL, NULL, NULL);
     if (rc != SQLITE_OK) {
-        printf("SQL error: %s\n", errMsg);
-        sqlite3_free(errMsg);
         return DB_OPEN_FAIL;
     }
 
@@ -70,34 +64,27 @@ static int callback(void *data, int colmncount, char **fields_row, char **colmnn
 
 static DbExecCode get_data_db(sqlite3 **db, scores_t **scores) {
     int rc;
-    char *errMsg = NULL;
     char *sql;
 
     int rows_count = 0;
     sql = "SELECT COUNT(*) FROM highscores";
-    rc = sqlite3_exec(*db, sql, set_rows_count, (void *)&rows_count, &errMsg);
+    rc = sqlite3_exec(*db, sql, set_rows_count, (void *)&rows_count, NULL);
     if (rc != SQLITE_OK) {
-        printf("SQL error: %s\n", errMsg);
-        sqlite3_free(errMsg);
         return DB_SELECT_FAIL;
     }
 
     if (rows_count == 11) {
         sql = "DELETE FROM highscores WHERE id = (SELECT id FROM highscores ORDER BY score ASC, timestamp ASC LIMIT 1)";
-            rc = sqlite3_exec(*db, sql, NULL, NULL, &errMsg);
+            rc = sqlite3_exec(*db, sql, NULL, NULL, NULL);
         if (rc != SQLITE_OK && rc != SQLITE_DONE) {
-            printf("SQL error: %s\n", errMsg);
-            sqlite3_free(errMsg);
             return DB_SELECT_FAIL;
         }
     }
 
 
     sql = "SELECT * FROM highscores ORDER BY score DESC, timestamp DESC";
-    rc = sqlite3_exec(*db, sql, callback, (void *)*scores, &errMsg);
+    rc = sqlite3_exec(*db, sql, callback, (void *)*scores, NULL);
     if (rc != SQLITE_OK) {
-        printf("SQL error: %s\n", errMsg);
-        sqlite3_free(errMsg); 
         return DB_SELECT_FAIL;
     }
 
@@ -113,7 +100,6 @@ static DbExecCode add_data_db(sqlite3 **db, char *name, int score) {
     sqlite3_stmt *stmt;
     rc = sqlite3_prepare_v2(*db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
-        printf("SQL error: %s\n", sqlite3_errmsg(*db));
         return DB_INSERT_FAIL;
     }
 
@@ -126,7 +112,6 @@ static DbExecCode add_data_db(sqlite3 **db, char *name, int score) {
 
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE) {
-        printf("SQL error: %s\n", sqlite3_errmsg(*db));
         return DB_INSERT_FAIL;
     }
 
@@ -144,7 +129,6 @@ static DbExecCode check_name(sqlite3 **db, char *name) {
 
     rc = sqlite3_prepare_v2(*db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
-        printf("SQL error: %s\n", sqlite3_errmsg(*db));
         return DB_NAME_CHECK_FAIL;
     }
 
@@ -154,7 +138,6 @@ static DbExecCode check_name(sqlite3 **db, char *name) {
     if (rc == SQLITE_ROW) {
         id = sqlite3_column_int(stmt, 0);
     } else if (rc != SQLITE_DONE) {
-        printf("SQL error: %s\n", sqlite3_errmsg(*db));
         return DB_NAME_CHECK_FAIL;
     }  
 
