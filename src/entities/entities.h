@@ -25,11 +25,12 @@ typedef struct Entety {
 
 } entety_t;
 
-int spawn(entety_t **entety, EntetyType type, entety_t *entety_obj);
-void move(entety_t **entety);
-void rotate(entety_t **entety);
-void shoot(entety_t **entety);
-int destroy(entety_t **entety);
+int spawn(entety_t **entity, EntetyType type, entety_t *entity_obj);
+void move(entety_t *entity, float dt, float np);
+void rotate(entety_t *entity, float dt, float np);
+
+
+// int destroy(entety_t *player, entety_t *bullet1, entety_t* bullet2, entety_t *enemy);
 
 // typedef struct Player {
 // } player_t;
