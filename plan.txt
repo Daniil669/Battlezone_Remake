@@ -5,12 +5,13 @@ TASKS:
 2) Create build script for both dev and prod environments - DOING 
 3) Set up DB, scores.h and scores.c, test from main.c - DONE
 4) Play with SDL and how to use it - 
-5) Add enteties and their functionality - DOING
+5) Add entities and their functionality - DONE
+5.1) Add simple AI for enemies in entities - 
 6) Handle inputs - 
 7) Draw static objects (bg) - 
 8) Draw active objects (enemies, player, covers) - 
-9) Update stats - 
-10) Put everything together - 
+9) Update stats in game - 
+10) Put everything together in game - 
 
 
 PROJECT OVERVIEW:
