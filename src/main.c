@@ -7,21 +7,27 @@
 #include "game/game.h"
 
 int main() {
-    int init = SDL_InitSubSystem(SDL_INIT_VIDEO);
-    if (init != 0) {
+    int sdl_init = SDL_InitSubSystem(SDL_INIT_VIDEO);
+    if (sdl_init != 0) {
         printf("Error: %s\n", SDL_GetError());
         SDL_ClearError();
         return 1;
     }
 
-    init = SDL_InitSubSystem(SDL_INIT_TIMER);
-    if (init != 0) {
+    sdl_init = SDL_InitSubSystem(SDL_INIT_TIMER);
+    if (sdl_init != 0) {
         printf("Error: %s\n", SDL_GetError());
         SDL_ClearError();
         return 1;
     }
 
-    render();
+    game_state_t *game_state = init_game();
+    if (game_state == NULL) {
+        printf("Failed to initialize the game.\n");
+        return 1;
+    }
+
+    render(game_state);
     // while (1) {
     //     input();
     //     update();

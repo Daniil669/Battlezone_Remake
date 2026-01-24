@@ -3,9 +3,17 @@
 #include <time.h>
 #include "db/scores.h"
 #include "entities/entities.h"
+#include "game.h"
 
 
-
+game_state_t *init_game() {
+    game_state_t *gs = malloc(sizeof(game_state_t));
+    if (gs == NULL) {
+        return NULL;
+    }
+    gs->game_stage = HOME;
+    return gs;
+}
 
 
 
