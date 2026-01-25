@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
 #include "db/scores.h"
 #include "entities/entities.h"
 #include "game.h"

@@ -24,11 +24,11 @@ Render
 
 1. Objects:
 With behavior:
-    Player
-    Bullet
-    Missile
-    EnemyTank
-    EnemyUFO
+    Player - green
+    Bullet - red
+    Missile - orange
+    EnemyTank - yellow
+    EnemyUFO - pink
 
 Static:
     Rocks/Boxes

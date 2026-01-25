@@ -1,4 +1,6 @@
 #include <stdio.h>
+
+#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_error.h>
 
@@ -18,6 +20,12 @@ int main() {
     if (sdl_init != 0) {
         printf("Error: %s\n", SDL_GetError());
         SDL_ClearError();
+        return 1;
+    }
+
+    int ttf_init = TTF_Init();
+    if (ttf_init != 0) {
+        printf("Failed to initialize ttf library.\n");
         return 1;
     }
 

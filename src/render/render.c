@@ -1,11 +1,21 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
+
 #include <SDL2/SDL_error.h>
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_ttf.h>
+
 #include "render.h"
 #include "game/game.h"
+
+#define SCREEN_W 1280
+#define SCREEN_H 720
+#define GREEN_R 40
+#define GREEN_G 252
+#define GREEN_B 72
+#define GREEN_A 255
 
 static void draw_line(SDL_Renderer *renderer, float x1, float y1, float x2, float y2) {
     SDL_RenderDrawLine(renderer, (int)x1, (int)y1, (int)x2, (int)y2);
@@ -37,99 +47,47 @@ static void draw_bullet(SDL_Renderer *r, float x, float y, float s)
    
 }
 
-static void draw_mountains(SDL_Renderer *r, int w, int h)
-{
-    SDL_SetRenderDrawColor(r, 0, 200, 0, 255);
-
-    int y = h / 3;
-    int x = 0;
-
-    while (x < w) {
-        int nx = x + 80;
-        int ny = y + (rand() % 80 - 40);
-        draw_line(r, x, y, nx, ny);
-        x = nx;
-        y = ny;
-    }
-
-    // Horizon
-    draw_line(r, 0, h / 3, w, h / 3);
-}
-
-static void draw_battlezone_logo(SDL_Renderer *r, int cx, int cy, int s)
-{
-    SDL_SetRenderDrawColor(r, 0, 255, 0, 255);
-
-    int x = cx - 240 * s;
-    int y = cy;
-
-    // B
-    draw_line(r, x, y, x, y + 60*s);
-    draw_line(r, x, y, x + 30*s, y + 10*s);
-    draw_line(r, x + 30*s, y + 10*s, x, y + 30*s);
-    draw_line(r, x, y + 30*s, x + 30*s, y + 50*s);
-    draw_line(r, x + 30*s, y + 50*s, x, y + 60*s);
-    x += 50*s;
-
-    // A
-    draw_line(r, x, y + 60*s, x + 20*s, y);
-    draw_line(r, x + 20*s, y, x + 40*s, y + 60*s);
-    draw_line(r, x + 10*s, y + 35*s, x + 30*s, y + 35*s);
-    x += 60*s;
-
-    // T
-    draw_line(r, x, y, x + 40*s, y);
-    draw_line(r, x + 20*s, y, x + 20*s, y + 60*s);
-    x += 60*s;
-
-    // T
-    draw_line(r, x, y, x + 40*s, y);
-    draw_line(r, x + 20*s, y, x + 20*s, y + 60*s);
-    x += 60*s;
-
-    // L
-    draw_line(r, x, y, x, y + 60*s);
-    draw_line(r, x, y + 60*s, x + 40*s, y + 60*s);
-    x += 60*s;
-
-    // E
-    draw_line(r, x, y, x, y + 60*s);
-    draw_line(r, x, y, x + 40*s, y);
-    draw_line(r, x, y + 30*s, x + 30*s, y + 30*s);
-    draw_line(r, x, y + 60*s, x + 40*s, y + 60*s);
-    x += 60*s;
-
-    // Z O N E (simplified)
-    draw_line(r, x, y, x + 40*s, y + 60*s);        // Z
-    draw_line(r, x + 40*s, y + 60*s, x, y + 60*s);
-    x += 60*s;
-
-    draw_line(r, x, y, x + 40*s, y);
-    draw_line(r, x + 40*s, y, x + 40*s, y + 60*s);
-    draw_line(r, x + 40*s, y + 60*s, x, y + 60*s);
-    draw_line(r, x, y + 60*s, x, y);
-}
-
-static void draw_text(SDL_Renderer *r, int x, int y)
-{
-    SDL_SetRenderDrawColor(r, 0, 200, 0, 255);
-
-    draw_line(r, x, y, x + 140, y); // underline
-
-    draw_line(r, x, y + 20, x + 160, y + 20);
-    draw_line(r, x, y + 40, x + 200, y + 40);
-    draw_line(r, x, y + 60, x + 120, y + 60);
-}
 
 
-static void draw_home_screen(SDL_Renderer *renderer, int width, int height)
-{
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+// Main title render function
+void draw_home(SDL_Renderer* renderer, TTF_Font* font_small, Uint32 ticks) {
+    SDL_SetRenderDrawColor(renderer, 21, 23, 23, 255);
     SDL_RenderClear(renderer);
 
-    draw_mountains(renderer, width, height);
-    draw_battlezone_logo(renderer, width / 2, height / 2 - 40, 1);
-    draw_text(renderer, width / 2 - 100, height / 2 + 80);
+    SDL_SetRenderDrawColor(renderer, GREEN_R, GREEN_G, GREEN_B, GREEN_A);
+
+    // Instructions text
+    if (font_small) {
+        SDL_Color col = {GREEN_R, GREEN_G, GREEN_B, GREEN_A};
+        const char* lines[] = {
+            "\"w\" - move forward; \"s\" - move backward;",
+            "\"a\" - rotate left; \"d\" - rotate right;",
+            "\"Space\" - shoot;",
+            "\"ESC\" - exit;",
+            "",
+            "Press \"Enter\" to start"
+        };
+
+        int y = (SCREEN_H / 2 + 80) + 100;
+        for (int i = 0; i < 6; i++) {
+            SDL_Surface* surf = TTF_RenderText_Blended(font_small, lines[i], col);
+            if (!surf) continue;
+            SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, surf);
+            if (tex) {
+                int w = surf->w, h = surf->h;
+                SDL_Rect dst = {SCREEN_W/2 - w/2, y, w, h};
+                SDL_RenderCopy(renderer, tex, NULL, &dst);
+                SDL_DestroyTexture(tex);
+            }
+            SDL_FreeSurface(surf);
+            y += 32;
+        }
+    }
+
+    // Optional pulsing "Press Enter" emphasis
+    float pulse = 0.7f + 0.3f * sinf(ticks * 0.004f);
+    SDL_SetRenderDrawColor(renderer, GREEN_R, (Uint8)(GREEN_G * pulse), (Uint8)(GREEN_B * pulse), GREEN_A);
+    // You can re-draw "Press Enter" line here with pulse if you want stronger effect
 
     SDL_RenderPresent(renderer);
 }
@@ -154,24 +112,32 @@ static void draw_scores_list() {
 
 void render(game_state_t *gs) {
     const char *title = "Battlezone";
-    SDL_Window *window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, 0);
+    SDL_Window *window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_W, SCREEN_H, SDL_WINDOW_FULLSCREEN_DESKTOP);
     if (window == NULL) {
-        printf("Error: %s", SDL_GetError());
+        printf("Error: %s\n", SDL_GetError());
         SDL_ClearError();
     }
-    SDL_Renderer *render_obj = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (render_obj == NULL) {
-        printf("Error: %s", SDL_GetError());
+
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == NULL) {
+        printf("Error: %s\n", SDL_GetError());
         SDL_ClearError();
+    }
+
+    TTF_Font *font = TTF_OpenFont("./assets/batmfa__.ttf", 16);
+    if (!font) {
+        printf("Error: %s\n", TTF_GetError());
     }
     
 
-    SDL_SetRenderDrawColor(render_obj, 0, 0, 0, 255);// black background
-    SDL_RenderClear(render_obj);
+    SDL_SetRenderDrawColor(renderer, 210, 23, 23, 255);// black background
+    SDL_RenderClear(renderer);
+
+    Uint32 ticks = SDL_GetTicks();
     
     switch (gs->game_stage) {
         case HOME:
-            draw_home_screen(render_obj, 1280, 720);
+            draw_home(renderer, font, ticks);
         case GAME_ON:
             break;
         case GAME_OVER:
@@ -183,9 +149,9 @@ void render(game_state_t *gs) {
     }
 
 
-    SDL_RenderPresent(render_obj);
+    SDL_RenderPresent(renderer);
     sleep(10);
 
-    SDL_DestroyRenderer(render_obj);
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 }

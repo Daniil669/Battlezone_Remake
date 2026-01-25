@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include "entities.h"
 
+#define PI 3.1415
+
 static void angle_position_calc(float *angle, float *x, float *y, entety_t *entity_obj) {
-    const float PI = 3.1415;
     // const int FOV = 90; // 90 deg field of view
     const float SPAWN_DIST = 1200.0;
 
@@ -133,7 +134,6 @@ void move(entety_t *entity, float dt, float np){
 
 void rotate(entety_t *entity, float dt, float np){
     // np - negative or positive (move forward or backwards)
-    const float PI = 3.1415;
     float da = entity->rotating_speed * dt * np;
     entity->angle += da;
     entity->angle = fmodf(entity->angle + 2*PI, 2*PI);
