@@ -31,7 +31,7 @@ With behavior:
     EnemyUFO - pink
 
 Static:
-    Rocks/Boxes
+    Rocks/Boxes - white
 
 
 2. Functionality:
