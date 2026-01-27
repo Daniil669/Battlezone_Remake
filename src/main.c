@@ -49,7 +49,7 @@ int main() {
         printf("Failed to initialize render\n");
     }
     
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < 15; i++) {
         Uint32 ticks = SDL_GetTicks();
         render(game_state, render_obj, ticks);
         sleep(1);

@@ -4,10 +4,10 @@ TASKS:
 1) Install packages (SDL2, SQLite3) - DONE 
 2) Create build script for both dev and prod environments - DOING 
 3) Set up DB, scores.h and scores.c, test from main.c - DONE
-4) Play with SDL and how to use it - 
+4) Play with SDL and how to use it - DOING
 5) Add entities and their functionality - DONE
 5.1) Add simple AI for enemies in entities - 
-6) Handle inputs - 
+6) Handle inputs - DOING
 7) Draw static objects (bg) - 
 8) Draw active objects (enemies, player, covers) - 
 9) Update stats in game - 

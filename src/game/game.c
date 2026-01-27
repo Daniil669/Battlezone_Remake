@@ -12,7 +12,7 @@ game_state_t *init_game() {
     if (gs == NULL) {
         return NULL;
     }
-    gs->game_stage = HOME;
+    gs->game_stage = SHOW_SCORES;
     return gs;
 }
 

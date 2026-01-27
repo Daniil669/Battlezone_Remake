@@ -4,7 +4,6 @@ typedef enum {
     HOME,
     GAME_ON,
     GAME_OVER,
-    INPUT_NAME,
     SHOW_SCORES
 } GameStage;
 
